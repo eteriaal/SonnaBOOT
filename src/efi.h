@@ -66,6 +66,10 @@ typedef struct {
     CHAR16     UnicodeChar;
 } EFI_INPUT_KEY;
 
+#define SCAN_UP   0x01
+#define SCAN_DOWN 0x02
+#define SCAN_LEFT 0x03
+#define SCAN_RIGHT 0x04
 
 struct EFI_SIMPLE_TEXT_INPUT_PROTOCOL {
     void* Reset;
