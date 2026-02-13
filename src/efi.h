@@ -47,18 +47,39 @@ typedef VOID*     EFI_EVENT;
 // Text attributes
 #define EFI_TEXT_ATTR(Foreground, Background) ((Foreground) | ((Background) << 4))
 
-#define EFI_BLACK     0x00
-#define EFI_BLUE      0x01
-#define EFI_GREEN     0x02
-#define EFI_RED       0x04
-#define EFI_YELLOW    0x0E
-#define EFI_WHITE     0x0F
+#define EFI_BLACK                0x00
+#define EFI_BLUE                 0x01
+#define EFI_GREEN                0x02
+#define EFI_CYAN                 0x03
+#define EFI_RED                  0x04
+#define EFI_MAGENTA              0x05
+#define EFI_BROWN                0x06
+#define EFI_LIGHTGRAY            0x07
+
+#define EFI_DARKGRAY             0x08
+#define EFI_LIGHTBLUE            0x09
+#define EFI_LIGHTGREEN           0x0A
+#define EFI_LIGHTCYAN            0x0B
+#define EFI_LIGHTRED             0x0C
+#define EFI_LIGHTMAGENTA         0x0D
+#define EFI_YELLOW               0x0E
+#define EFI_WHITE                0x0F
+
+#define EFI_BACKGROUND_BLACK     0x00
+#define EFI_BACKGROUND_BLUE      0x10
+#define EFI_BACKGROUND_GREEN     0x20
+#define EFI_BACKGROUND_CYAN      0x30
+#define EFI_BACKGROUND_RED       0x40
+#define EFI_BACKGROUND_MAGENTA   0x50
+#define EFI_BACKGROUND_BROWN     0x60
+#define EFI_BACKGROUND_LIGHTGRAY 0x70
+
 
 // Forward declarations
-typedef struct EFI_SYSTEM_TABLE          EFI_SYSTEM_TABLE;
+typedef struct EFI_SYSTEM_TABLE EFI_SYSTEM_TABLE;
 typedef struct EFI_SIMPLE_TEXT_INPUT_PROTOCOL  EFI_SIMPLE_TEXT_INPUT_PROTOCOL;
 typedef struct EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL;
-typedef struct EFI_RUNTIME_SERVICES      EFI_RUNTIME_SERVICES;
+typedef struct EFI_RUNTIME_SERVICES EFI_RUNTIME_SERVICES;
 
 
 typedef struct {
@@ -125,6 +146,48 @@ typedef struct {
     UINT32  Reserved;
 } EFI_TABLE_HEADER;
 
+static const EFI_GUID gEfiGlobalVariableGuid = {
+    0x8be4df61, 0x93ca, 0x11d2,
+    { 0xaa, 0x0d, 0x00, 0xe0, 0x98, 0x03, 0x2b, 0x8c }
+};
+
+// stub EFI_ERROR
+#define EFI_ERROR(Status)  ((Status) < 0)
+
+#define EFI_OS_INDICATIONS_BOOT_TO_FW_UI      0x0000000000000001ULL
+
+#define EFI_VARIABLE_NON_VOLATILE             0x00000001
+#define EFI_VARIABLE_BOOTSERVICE_ACCESS       0x00000002
+#define EFI_VARIABLE_RUNTIME_ACCESS           0x00000004
+
+typedef
+EFI_STATUS
+(EFIAPI *EFI_GET_VARIABLE) (
+    IN  CHAR16            *VariableName,
+    IN  EFI_GUID          *VendorGuid,
+    OUT UINT32            *Attributes     OPTIONAL,
+    IN  OUT UINTN         *DataSize,
+    OUT VOID              *Data           OPTIONAL
+);
+
+typedef
+EFI_STATUS
+(EFIAPI *EFI_SET_VARIABLE) (
+    IN  CHAR16            *VariableName,
+    IN  EFI_GUID          *VendorGuid,
+    IN  UINT32            Attributes,
+    IN  UINTN             DataSize,
+    IN  VOID              *Data
+);
+
+typedef
+EFI_STATUS
+(EFIAPI *EFI_GET_NEXT_VARIABLE_NAME) (
+    IN  OUT UINTN         *VariableNameSize,
+    IN  OUT CHAR16        *VariableName,
+    IN  OUT EFI_GUID      *VendorGuid
+);
+
 
 struct EFI_RUNTIME_SERVICES {
     EFI_TABLE_HEADER Hdr;
@@ -137,9 +200,9 @@ struct EFI_RUNTIME_SERVICES {
     void* SetVirtualAddressMap;
     void* ConvertPointer;
 
-    void* GetVariable;
-    void* GetNextVariableName;
-    void* SetVariable;
+    EFI_GET_VARIABLE GetVariable;
+    EFI_GET_NEXT_VARIABLE_NAME GetNextVariableName;
+    EFI_SET_VARIABLE SetVariable;
 
     void* GetNextHighMonotonicCount;
 
